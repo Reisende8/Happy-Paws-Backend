@@ -1,18 +1,23 @@
-import { Model, Column, Table } from "sequelize-typescript";
+import {
+  Model,
+  Column,
+  Table,
+  PrimaryKey,
+  HasMany,
+} from "sequelize-typescript";
+import User from "./User";
 
 @Table({ tableName: "roles" })
 class Role extends Model<Role> {
-  @Column({ primaryKey: true, autoIncrement: true })
+  @PrimaryKey
+  @Column
   id!: number;
 
   @Column
-  firstName!: string;
+  name!: string;
 
-  @Column
-  lastName!: string;
-
-  @Column
-  email!: string;
+  @HasMany(() => User, "roleId")
+  users!: User[];
 }
 
 export default Role;

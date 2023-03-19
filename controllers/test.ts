@@ -8,8 +8,8 @@ export const testSequelize = async () => {
 
 export const createUser = async () => {
   await User.create({
-    firstName: "Angry",
-    lastName: "Bunciu",
+    password: "Angry",
+    phoneNumber: "340305",
     email: "ANGRY!",
   });
 };

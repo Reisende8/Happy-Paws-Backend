@@ -1,18 +1,46 @@
-import { Model, Column, Table } from "sequelize-typescript";
+import {
+  Model,
+  Column,
+  Table,
+  PrimaryKey,
+  Default,
+  DataType,
+  ForeignKey,
+  BelongsTo,
+  HasOne,
+} from "sequelize-typescript";
+import Client from "./Client";
+import Clinic from "./Clinic";
+import Role from "./Role";
 
 @Table({ tableName: "users" })
 class User extends Model<User> {
-  @Column({ primaryKey: true, autoIncrement: true })
-  id!: number;
+  @PrimaryKey
+  @Default(DataType.UUIDV4)
+  @Column(DataType.UUID)
+  id!: string;
 
+  @ForeignKey(() => Role)
   @Column
-  firstName!: string;
-
-  @Column
-  lastName!: string;
+  roleId!: number;
 
   @Column
   email!: string;
+
+  @Column
+  password!: string;
+
+  @Column
+  phoneNumber!: string;
+
+  @BelongsTo(() => Role, { foreignKey: "roleId", targetKey: "id" })
+  role!: Role;
+
+  @HasOne(() => Client, "userId")
+  client!: Client;
+
+  @HasOne(() => Clinic, "userId")
+  clinic!: Clinic;
 }
 
 export default User;

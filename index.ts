@@ -1,15 +1,33 @@
-import { Sequelize } from "sequelize-typescript";
+//import { Sequelize } from "sequelize-typescript";
 import sequelize from "./models/index";
 const express = require("express");
 const dotenv = require("dotenv");
 import User from "./models/User";
 import Role from "./models/Role";
 import { createUser, testSequelize } from "./controllers/test";
+import Appointment from "./models/Appointment";
+import Animal from "./models/Animal";
+import Client from "./models/Client";
+import Clinic from "./models/Clinic";
+import Veterinarian from "./models/Veterinarian";
+import VeterinarianSpecialization from "./models/VeterinarianSpecilization";
+import WorksWith from "./models/WorksWith";
+
 const app = express();
 dotenv.config();
 const port = process.env.PORT; // default port to listen
 
-sequelize.addModels([User, Role]);
+sequelize.addModels([
+  User,
+  Role,
+  Animal,
+  Appointment,
+  Client,
+  Clinic,
+  Veterinarian,
+  VeterinarianSpecialization,
+  WorksWith,
+]);
 sequelize.sync();
 
 // define a route handler for the default home page
