@@ -1,10 +1,22 @@
+import { Sequelize } from "sequelize-typescript";
+import sequelize from "./models/index";
 const express = require("express");
+const dotenv = require("dotenv");
+import User from "./models/User";
+import Role from "./models/Role";
+import { createUser, testSequelize } from "./controllers/test";
 const app = express();
-const port = 3001; // default port to listen
+dotenv.config();
+const port = process.env.PORT; // default port to listen
+
+sequelize.addModels([User, Role]);
+sequelize.sync();
 
 // define a route handler for the default home page
-app.get("/", (req, res) => {
-  res.send("Hello world!");
+app.get("/", async (req, res) => {
+  await createUser();
+  const users = await testSequelize();
+  res.status(200).json(users);
 });
 
 // start the Express server
