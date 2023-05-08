@@ -10,7 +10,7 @@ import Animal from "./models/Animal";
 import Client from "./models/Client";
 import Clinic from "./models/Clinic";
 import Veterinarian from "./models/Veterinarian";
-import VeterinarianSpecialization from "./models/VeterinarianSpecilization";
+import VeterinarianSpecialization from "./models/VeterinarianSpecialization";
 import WorksWith from "./models/WorksWith";
 
 const app = express();

@@ -13,7 +13,7 @@ import Animal from "./Animal";
 import Appointment from "./Appointment";
 import Client from "./Client";
 import Clinic from "./Clinic";
-import VeterinarianSpecialization from "./VeterinarianSpecilization";
+import VeterinarianSpecialization from "./VeterinarianSpecialization";
 import WorksWith from "./WorksWith";
 
 @Table({ tableName: "veterinarians" })
