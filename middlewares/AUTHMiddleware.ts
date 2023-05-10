@@ -24,7 +24,7 @@ const AUTHMiddleware = (role?: "client" | "clinic") => {
           : null;
 
         if (role && user?.role?.name !== role) {
-          return res.sendStatus(401);
+          return res.sendStatus(403);
         }
 
         if (user) {

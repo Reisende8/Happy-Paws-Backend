@@ -2,9 +2,10 @@
 import sequelize from "./models/index";
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
+const UserController = require("./controllers/UserController");
 import User from "./models/User";
 import Role from "./models/Role";
-import { createUser, testSequelize } from "./controllers/test";
 import Appointment from "./models/Appointment";
 import Animal from "./models/Animal";
 import Client from "./models/Client";
@@ -30,12 +31,11 @@ sequelize.addModels([
 ]);
 sequelize.sync();
 
-// define a route handler for the default home page
-app.get("/", async (req, res) => {
-  await createUser();
-  const users = await testSequelize();
-  res.status(200).json(users);
-});
+app.use(express.json());
+app.use(cors({ origin: "http://localhost:3000" }));
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/user", UserController);
 
 // start the Express server
 app.listen(port, () => {
