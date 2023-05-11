@@ -4,14 +4,51 @@ import {
   isValidPassword,
 } from "../utils/functions";
 import {
+  LogInInterface,
   RegisterClientInterface,
   RegisterClinicInterface,
 } from "./UsersService.type";
 const crypto = require("crypto");
+const uuid = require("uuid");
+const dotenv = require("dotenv");
+const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 import User from "../models/User";
 import Client from "../models/Client";
 import Clinic from "../models/Clinic";
 import { registerClientDTO, registerClinicDTO } from "../dtos/user.dto";
+
+const sendActivationEmail = async (email: string, activationToken: string) => {
+  try {
+    dotenv.config({
+      path: "../.env",
+    });
+    const clientEmail = email;
+    const frontendUrl = process.env.FRONTEND_URL;
+    const activationLink =
+      frontendUrl +
+      `/activate-account?email=${clientEmail}&token=${activationToken}`;
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.APP_EMAIL,
+        pass: process.env.APP_PASSWORD,
+      },
+    });
+
+    // send mail with defined transport object
+    const info = await transporter.sendMail({
+      from: `"HappyPaws!" <${process.env.APP_EMAIL}>`,
+      to: clientEmail,
+      subject: "Activate your HappyPaws account!",
+      text: `Hello there! Welcome to HappyPaws! Click on the link below in order to activate your account. ${activationLink}`,
+      html: `<h1>Hello there!</h1> <h4>Welcome to HappyPaws! Click on the link below in order to activate your account.</h4> <h4> <a href="${activationLink}">${activationLink}</a></h4>`,
+    });
+  } catch (err) {
+    console.error("Error while sending the validation mail! ", err);
+  }
+};
 
 module.exports.registerClient = async (body: RegisterClientInterface) => {
   if (!isValidEmail(body.email)) {
@@ -58,11 +95,15 @@ module.exports.registerClient = async (body: RegisterClientInterface) => {
     .update(body.password)
     .digest("hex");
 
+  const activationToken = uuid.v4().replace(/-/g, "");
+
   const user = await User.create({
     roleId: 0,
     email: body.email,
     password: password,
     phoneNumber: body.phoneNumber,
+    emailActivated: false,
+    activationToken: activationToken,
   });
 
   const client = await Client.create({
@@ -70,7 +111,7 @@ module.exports.registerClient = async (body: RegisterClientInterface) => {
     firstName: body.firstName,
     lastName: body.lastName,
   });
-
+  await sendActivationEmail(user.email, user.activationToken);
   return registerClientDTO(user, client);
 };
 
@@ -88,7 +129,7 @@ module.exports.registerClinic = async (body: RegisterClinicInterface) => {
       status: 400,
       error: "Error! Password is invalid!",
       message:
-        "Please make sure the password has at least 8 characters,at least an uppercase letter,at least a lowercase letter, a number and a special character!",
+        "Please make sure the password has at least 8 characters, at least an uppercase letter, at least a lowercase letter, a number and a special character!",
     };
   }
 
@@ -119,11 +160,15 @@ module.exports.registerClinic = async (body: RegisterClinicInterface) => {
     .update(body.password)
     .digest("hex");
 
+  const activationToken = uuid.v4().replace(/-/g, "");
+
   const user = await User.create({
     roleId: 1,
     email: body.email,
     password: password,
     phoneNumber: body.phoneNumber,
+    emailActivated: false,
+    activationToken: activationToken,
   });
 
   const clinic = await Clinic.create({
@@ -131,6 +176,94 @@ module.exports.registerClinic = async (body: RegisterClinicInterface) => {
     address: body.address,
     name: body.name,
   });
-
+  await sendActivationEmail(user.email, user.activationToken);
   return registerClinicDTO(user, clinic);
+};
+
+module.exports.activateEmail = async (email: string, token: string) => {
+  const existingUserEmail = await User.findOne({
+    where: { email: email },
+  });
+  if (!existingUserEmail) {
+    console.log("This email doesn't exist!");
+    throw "ERROR";
+  }
+
+  const existingActivationToken = User.findOne({
+    where: { activationToken: token },
+  });
+  if (!existingActivationToken) {
+    console.log("This token is not found!");
+    throw "ERROR";
+  }
+
+  await User.update({ emailActivated: true }, { where: { email: email } });
+
+  if (existingUserEmail.roleId === 0) {
+    const client = await Client.findOne({
+      where: { userId: existingUserEmail.id },
+    });
+
+    return {
+      token: jwt.sign(
+        registerClientDTO(existingUserEmail, client),
+        process.env.JWT_SECRET
+      ),
+    };
+  } else {
+    const clinic = await Clinic.findOne({
+      where: { userId: existingUserEmail.id },
+    });
+
+    return {
+      token: jwt.sign(
+        registerClinicDTO(existingUserEmail, clinic),
+        process.env.JWT_SECRET
+      ),
+    };
+  }
+};
+
+module.exports.logIn = async (user: LogInInterface) => {
+  const hashedPassword = crypto
+    .createHash("sha256")
+    .update(user.password)
+    .digest("hex");
+
+  const logingInUser = await User.findOne({
+    where: {
+      email: user.email,
+      password: hashedPassword,
+    },
+  });
+  if (!logingInUser) {
+    throw {
+      code: 400,
+      error: "Invalid user!",
+      message: "Email or password is invalid!",
+    };
+  }
+  if (logingInUser.roleId === 0) {
+    const client = await Client.findOne({
+      where: { userId: logingInUser.id },
+    });
+
+    return {
+      token: jwt.sign(
+        registerClientDTO(logingInUser, client),
+        process.env.JWT_SECRET
+      ),
+    };
+  } else {
+    const clinic = await Clinic.findOne({
+      where: { userId: logingInUser.id },
+    });
+
+    return {
+      token: jwt.sign(
+        registerClinicDTO(logingInUser, clinic),
+        process.env.JWT_SECRET
+      ),
+    };
+  }
 };

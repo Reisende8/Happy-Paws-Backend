@@ -33,6 +33,12 @@ class User extends Model<User> {
   @Column
   phoneNumber!: string;
 
+  @Column
+  emailActivated!: boolean;
+
+  @Column
+  activationToken!: string;
+
   @BelongsTo(() => Role, { foreignKey: "roleId", targetKey: "id" })
   role!: Role;
 

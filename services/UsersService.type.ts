@@ -4,6 +4,8 @@ export interface RegisterClientInterface {
   phoneNumber: string;
   email: string;
   password: string;
+  activatedEmail?: boolean;
+  activationToken?: string;
   repeatPassword: string;
 }
 
@@ -14,4 +16,9 @@ export interface RegisterClinicInterface {
   phoneNumber: string;
   password: string;
   repeatPassword: string;
+}
+
+export interface LogInInterface {
+  email: string;
+  password: string;
 }

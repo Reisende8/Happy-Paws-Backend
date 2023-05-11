@@ -4,6 +4,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const UserController = require("./controllers/UserController");
+const AnimalController = require("./controllers/AnimalController");
+const VeterinarianSpecializationController = require("./controllers/VeterinarianSpecializationController");
 import User from "./models/User";
 import Role from "./models/Role";
 import Appointment from "./models/Appointment";
@@ -29,6 +31,7 @@ sequelize.addModels([
   VeterinarianSpecialization,
   WorksWith,
 ]);
+//sequelize.sync({ force: true });
 sequelize.sync();
 
 app.use(express.json());
@@ -36,6 +39,11 @@ app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/user", UserController);
+app.use("/api/animal", AnimalController);
+app.use(
+  "/api/veterinarian-specialization",
+  VeterinarianSpecializationController
+);
 
 // start the Express server
 app.listen(port, () => {
