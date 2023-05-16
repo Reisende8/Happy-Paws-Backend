@@ -6,6 +6,7 @@ const cors = require("cors");
 const UserController = require("./controllers/UserController");
 const AnimalController = require("./controllers/AnimalController");
 const VeterinarianSpecializationController = require("./controllers/VeterinarianSpecializationController");
+const VeterinarianController = require("./controllers/VeterinarianController");
 import User from "./models/User";
 import Role from "./models/Role";
 import Appointment from "./models/Appointment";
@@ -44,6 +45,7 @@ app.use(
   "/api/veterinarian-specialization",
   VeterinarianSpecializationController
 );
+app.use("/api/medic", VeterinarianController);
 
 // start the Express server
 app.listen(port, () => {

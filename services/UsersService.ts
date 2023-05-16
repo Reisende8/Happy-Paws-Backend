@@ -7,6 +7,8 @@ import {
   LogInInterface,
   RegisterClientInterface,
   RegisterClinicInterface,
+  UpdateClientInterface,
+  UpdateClinicInterface,
 } from "./UsersService.type";
 const crypto = require("crypto");
 const uuid = require("uuid");
@@ -16,7 +18,12 @@ const jwt = require("jsonwebtoken");
 import User from "../models/User";
 import Client from "../models/Client";
 import Clinic from "../models/Clinic";
-import { registerClientDTO, registerClinicDTO } from "../dtos/user.dto";
+import {
+  registerClientDTO,
+  registerClinicDTO,
+  updateClinicDTO,
+  updateClientDTO,
+} from "../dtos/user.dto";
 
 const sendActivationEmail = async (email: string, activationToken: string) => {
   try {
@@ -234,6 +241,7 @@ module.exports.logIn = async (user: LogInInterface) => {
     where: {
       email: user.email,
       password: hashedPassword,
+      emailActivated: true,
     },
   });
   if (!logingInUser) {
@@ -266,4 +274,72 @@ module.exports.logIn = async (user: LogInInterface) => {
       ),
     };
   }
+};
+
+module.exports.editClinic = async (
+  userId: string,
+  clinicId: string,
+  body: UpdateClinicInterface
+) => {
+  const clinicToUpdate = await Clinic.findOne({
+    where: {
+      id: clinicId,
+      userId: userId,
+    },
+  });
+  const userToUpdate = await User.findOne({ where: { id: userId } });
+
+  if (!clinicToUpdate || !userToUpdate) {
+    throw {
+      code: 400,
+      error: "Invalid clinic!",
+      message: "Clinic or user not found!",
+    };
+  }
+
+  const updatedClinic = await clinicToUpdate.update({
+    ...clinicToUpdate,
+    address: body.address,
+    name: body.name,
+  });
+  const updatedUser = await userToUpdate.update({
+    ...userToUpdate,
+    phoneNumber: body.phoneNumber,
+  });
+
+  return updateClinicDTO(updatedUser, updatedClinic);
+};
+
+module.exports.editClient = async (
+  userId: string,
+  clientId: string,
+  body: UpdateClientInterface
+) => {
+  const clientToUpdate = await Client.findOne({
+    where: {
+      id: clientId,
+      userId: userId,
+    },
+  });
+  const userToUpdate = await User.findOne({ where: { id: userId } });
+
+  if (!clientToUpdate || !userToUpdate) {
+    throw {
+      code: 400,
+      error: "Invalid clinic!",
+      message: "Client or user not found!",
+    };
+  }
+
+  const updatedClient = await clientToUpdate.update({
+    ...clientToUpdate,
+    firstName: body.firstName,
+    lastName: body.lastName,
+  });
+  const updatedUser = await userToUpdate.update({
+    ...userToUpdate,
+    phoneNumber: body.phoneNumber,
+  });
+
+  return updateClientDTO(updatedUser, updatedClient);
 };

@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
 const dotenv = require("dotenv").config();
-const db = require("../models");
 import { Request, Response, NextFunction } from "express";
+import User from "../models/User";
 
-const AUTHMiddleware = (role?: "client" | "clinic") => {
+const AUTHMiddleware = (role: "client" | "clinic") => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const auth = req.headers.authorization;
+    const roleID = role === "client" ? 0 : 1;
 
     if (!auth) {
       return res.sendStatus(401);
@@ -15,20 +16,22 @@ const AUTHMiddleware = (role?: "client" | "clinic") => {
           auth.replace("Bearer ", ""),
           process.env.JWT_SECRET
         );
-        const userId = JWTDecoded.id;
+
+        const userId = JWTDecoded.userId;
+        const roleId = JWTDecoded.roleId;
+
         const user = userId
-          ? await db.User.findOne({
-              where: { id: userId },
-              include: { model: db.Role, as: "role" },
+          ? await User.findOne({
+              where: { id: userId, roleId: roleId },
             })
           : null;
 
-        if (role && user?.role?.name !== role) {
+        if (roleID && user?.roleId !== roleID) {
           return res.sendStatus(403);
         }
 
         if (user) {
-          req.locals.user = user.dataValues;
+          req.user = user.dataValues;
           next();
         } else {
           return res.sendStatus(401);

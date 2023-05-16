@@ -1,4 +1,5 @@
 import { Router } from "express";
+import AUTHMiddleware from "../middlewares/AUTHMiddleware";
 const requiredFields = require("../middlewares/requiredFieldsMiddleware");
 const express = require("express");
 const router: Router = express.Router();
@@ -7,6 +8,8 @@ const {
   registerClinic,
   activateEmail,
   logIn,
+  editClinic,
+  editClient,
 } = require("../services/UsersService");
 
 router.post(
@@ -60,7 +63,6 @@ router.post(
 router.get("/validate-email/:email/:token", async (req, res) => {
   try {
     const token = await activateEmail(req.params.email, req.params.token);
-
     res.status(200).json(token);
   } catch (err) {
     console.error("Error while validating email: ", err);
@@ -78,6 +80,48 @@ router.post(
     try {
       const token = await logIn(req.body);
       res.status(200).json(token);
+    } catch (err) {
+      console.error(err);
+      res.status(err.status ?? 400).json({
+        error: err.error ?? "Error!",
+        message: err.message ?? "Something went wrong!",
+      });
+    }
+  }
+);
+
+router.put(
+  "/clinics/:clinicId",
+  AUTHMiddleware("clinic"),
+  requiredFields(["name", "address", "phoneNumber"]),
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const clinicId = req.params.clinicId;
+
+      const clinic = await editClinic(userId, clinicId, req.body);
+      res.status(200).json(clinic);
+    } catch (err) {
+      console.error(err);
+      res.status(err.status ?? 400).json({
+        error: err.error ?? "Error!",
+        message: err.message ?? "Something went wrong!",
+      });
+    }
+  }
+);
+
+router.put(
+  "/clients/:clientId",
+  AUTHMiddleware("client"),
+  requiredFields(["firstName", "lastName", "phoneNumber"]),
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const clientId = req.params.clientId;
+
+      const client = await editClient(userId, clientId, req.body);
+      res.status(200).json(client);
     } catch (err) {
       console.error(err);
       res.status(err.status ?? 400).json({

@@ -14,7 +14,7 @@ class VeterinarianSpecialization extends Model<VeterinarianSpecialization> {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id!: string;
+  id!: number;
 
   @Column
   name!: string;

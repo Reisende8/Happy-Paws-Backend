@@ -22,3 +22,15 @@ export interface LogInInterface {
   email: string;
   password: string;
 }
+
+export interface UpdateClinicInterface {
+  name: string;
+  address: string;
+  phoneNumber: string;
+}
+
+export interface UpdateClientInterface {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+}
