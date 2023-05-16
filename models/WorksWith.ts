@@ -12,7 +12,7 @@ import Veterinarian from "./Veterinarian";
 class WorksWith extends Model<WorksWith> {
   @ForeignKey(() => Animal)
   @Column(DataType.UUID)
-  animalId!: string;
+  animalId!: number;
 
   @ForeignKey(() => Veterinarian)
   @Column(DataType.UUID)

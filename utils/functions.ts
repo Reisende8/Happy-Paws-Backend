@@ -23,3 +23,7 @@ export const checkPasswordMatch = (
 ) => {
   return password !== repeatPassword;
 };
+
+export const isWrongAnimalId = (animalIds: Array<number>) => {
+  return animalIds.some((animalId) => animalId !== 0 && animalId !== 1);
+};

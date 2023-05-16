@@ -3,7 +3,7 @@ const dotenv = require("dotenv").config();
 import { Request, Response, NextFunction } from "express";
 import User from "../models/User";
 
-const AUTHMiddleware = (role: "client" | "clinic") => {
+const AUTHMiddleware = (role?: "client" | "clinic") => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const auth = req.headers.authorization;
     const roleID = role === "client" ? 0 : 1;

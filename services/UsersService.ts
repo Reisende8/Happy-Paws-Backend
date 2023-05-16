@@ -18,12 +18,7 @@ const jwt = require("jsonwebtoken");
 import User from "../models/User";
 import Client from "../models/Client";
 import Clinic from "../models/Clinic";
-import {
-  registerClientDTO,
-  registerClinicDTO,
-  updateClinicDTO,
-  updateClientDTO,
-} from "../dtos/user.dto";
+import { clientDTO, clinicDTO } from "../dtos/user.dto";
 
 const sendActivationEmail = async (email: string, activationToken: string) => {
   try {
@@ -119,7 +114,7 @@ module.exports.registerClient = async (body: RegisterClientInterface) => {
     lastName: body.lastName,
   });
   await sendActivationEmail(user.email, user.activationToken);
-  return registerClientDTO(user, client);
+  return clientDTO(user, client);
 };
 
 module.exports.registerClinic = async (body: RegisterClinicInterface) => {
@@ -184,7 +179,7 @@ module.exports.registerClinic = async (body: RegisterClinicInterface) => {
     name: body.name,
   });
   await sendActivationEmail(user.email, user.activationToken);
-  return registerClinicDTO(user, clinic);
+  return clinicDTO(user, clinic);
 };
 
 module.exports.activateEmail = async (email: string, token: string) => {
@@ -213,7 +208,7 @@ module.exports.activateEmail = async (email: string, token: string) => {
 
     return {
       token: jwt.sign(
-        registerClientDTO(existingUserEmail, client),
+        clientDTO(existingUserEmail, client),
         process.env.JWT_SECRET
       ),
     };
@@ -224,7 +219,7 @@ module.exports.activateEmail = async (email: string, token: string) => {
 
     return {
       token: jwt.sign(
-        registerClinicDTO(existingUserEmail, clinic),
+        clinicDTO(existingUserEmail, clinic),
         process.env.JWT_SECRET
       ),
     };
@@ -257,10 +252,7 @@ module.exports.logIn = async (user: LogInInterface) => {
     });
 
     return {
-      token: jwt.sign(
-        registerClientDTO(logingInUser, client),
-        process.env.JWT_SECRET
-      ),
+      token: jwt.sign(clientDTO(logingInUser, client), process.env.JWT_SECRET),
     };
   } else {
     const clinic = await Clinic.findOne({
@@ -268,10 +260,7 @@ module.exports.logIn = async (user: LogInInterface) => {
     });
 
     return {
-      token: jwt.sign(
-        registerClinicDTO(logingInUser, clinic),
-        process.env.JWT_SECRET
-      ),
+      token: jwt.sign(clinicDTO(logingInUser, clinic), process.env.JWT_SECRET),
     };
   }
 };
@@ -307,7 +296,7 @@ module.exports.editClinic = async (
     phoneNumber: body.phoneNumber,
   });
 
-  return updateClinicDTO(updatedUser, updatedClinic);
+  return clinicDTO(updatedUser, updatedClinic);
 };
 
 module.exports.editClient = async (
@@ -341,5 +330,5 @@ module.exports.editClient = async (
     phoneNumber: body.phoneNumber,
   });
 
-  return updateClientDTO(updatedUser, updatedClient);
+  return clientDTO(updatedUser, updatedClient);
 };
