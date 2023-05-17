@@ -8,6 +8,7 @@ const {
   editMedic,
   deleteMedic,
   getMedics,
+  getMedicDetails,
 } = require("../services/VeterinariansService");
 
 router.post(
@@ -80,6 +81,21 @@ router.post("/get-medics", AUTHMiddleware(), async (req, res) => {
   try {
     const medics = await getMedics(req.body);
     res.status(200).json(medics);
+  } catch (err) {
+    console.error(err);
+    res.status(err.status ?? 400).json({
+      error: err.error ?? "Error!",
+      message: err.message ?? "Something went wrong!",
+    });
+  }
+});
+
+router.get("/medics/:medicId", AUTHMiddleware(), async (req, res) => {
+  try {
+    const medicId = req.params.medicId;
+
+    const medic = await getMedicDetails(medicId);
+    res.status(200).json(medic);
   } catch (err) {
     console.error(err);
     res.status(err.status ?? 400).json({

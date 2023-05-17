@@ -10,6 +10,8 @@ const {
   logIn,
   editClinic,
   editClient,
+  getClientDetails,
+  getClinicDetails,
 } = require("../services/UsersService");
 
 router.post(
@@ -132,4 +134,40 @@ router.put(
   }
 );
 
+router.get(
+  "/get-client-details",
+  AUTHMiddleware("client"),
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const client = await getClientDetails(userId);
+      res.status(200).json(client);
+    } catch (err) {
+      console.error(err);
+      res.status(err.status ?? 400).json({
+        error: err.error ?? "Error!",
+        message: err.message ?? "Something went wrong!",
+      });
+    }
+  }
+);
+
+router.get(
+  "/get-clinic-details",
+  AUTHMiddleware("clinic"),
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+
+      const clinic = await getClinicDetails(userId);
+      res.status(200).json(clinic);
+    } catch (err) {
+      console.error(err);
+      res.status(err.status ?? 400).json({
+        error: err.error ?? "Error!",
+        message: err.message ?? "Something went wrong!",
+      });
+    }
+  }
+);
 module.exports = router;

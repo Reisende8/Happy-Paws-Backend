@@ -18,7 +18,12 @@ const jwt = require("jsonwebtoken");
 import User from "../models/User";
 import Client from "../models/Client";
 import Clinic from "../models/Clinic";
-import { clientDTO, clinicDTO } from "../dtos/user.dto";
+import {
+  clientDTO,
+  clinicDTO,
+  getClientDetailsDTO,
+  getClinicDetailsDTO,
+} from "../dtos/user.dto";
 
 const sendActivationEmail = async (email: string, activationToken: string) => {
   try {
@@ -331,4 +336,36 @@ module.exports.editClient = async (
   });
 
   return clientDTO(updatedUser, updatedClient);
+};
+
+module.exports.getClientDetails = async (userId: string) => {
+  const client = await Client.findOne({
+    where: { userId: userId },
+    include: { model: User },
+  });
+  if (!client) {
+    throw {
+      code: 400,
+      error: "Invalid clinic!",
+      message: "Client not found!",
+    };
+  }
+
+  return getClientDetailsDTO(client);
+};
+
+module.exports.getClinicDetails = async (userId: string) => {
+  const clinic = await Clinic.findOne({
+    where: { userId: userId },
+    include: { model: User },
+  });
+  if (!clinic) {
+    throw {
+      code: 400,
+      error: "Invalid clinic!",
+      message: "Clinic not found!",
+    };
+  }
+
+  return getClinicDetailsDTO(clinic);
 };

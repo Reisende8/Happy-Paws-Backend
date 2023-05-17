@@ -6,7 +6,11 @@ import {
   getMedicsBodyInterface,
   updateMedicInterface,
 } from "./VeterinariansService.type";
-import { medicDTO, getMedicsDTO } from "../dtos/veterinarian.dto";
+import {
+  medicDTO,
+  getMedicsDTO,
+  getMedicDetailsDTO,
+} from "../dtos/veterinarian.dto";
 import WorksWith from "../models/WorksWith";
 import { isWrongAnimalId } from "../utils/functions";
 import Animal from "../models/Animal";
@@ -182,4 +186,21 @@ module.exports.getMedics = async (body?: getMedicsBodyInterface) => {
     : getMedics;
 
   return getMedicsDTO(filteredByAnimals);
+};
+
+module.exports.getMedicDetails = async (medicId: string) => {
+  const medic = await Veterinarian.findOne({
+    where: {
+      id: medicId,
+    },
+    include: { model: Animal },
+  });
+  if (!medic) {
+    throw {
+      status: 400,
+      error: `Error!`,
+      message: `Medic not found!`,
+    };
+  }
+  return getMedicDetailsDTO(medic);
 };
