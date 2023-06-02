@@ -42,7 +42,9 @@ export const getMedicDetailsDTO = (medic) => ({
 });
 
 export const getRecommendedMedicsDTO = (medics) => {
-  return medics.map((medic) => {
+  return medics.map((m) => {
+    const medic = m.dataValues;
+    const takenSlots = m.takenSlots;
     return {
       medicId: medic.id,
       clinicId: medic.clinicId,
@@ -54,7 +56,7 @@ export const getRecommendedMedicsDTO = (medics) => {
         id: animal.id,
         name: animal.name,
       })),
-      takenSlots: medic.takenSlots,
+      takenSlots,
     };
   });
 };

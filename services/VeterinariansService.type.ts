@@ -19,7 +19,8 @@ export interface getMedicsBodyInterface {
   animalId: string;
 }
 
-export interface GetRecommendedMedicsBodyInterface
-  extends getMedicsBodyInterface {
+export interface GetRecommendedMedicsBodyInterface {
+  specializationId: string;
+  animalId: string;
   date: string;
 }

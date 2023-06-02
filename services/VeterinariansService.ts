@@ -213,14 +213,7 @@ module.exports.getRecommendedMedics = async (
 ) => {
   const appointmentDate = new Date(body.date);
   const specializedMedics = await Veterinarian.findAll({
-    where: {
-      [Op.and]: [
-        body.clinicId ? { clinicId: body.clinicId } : undefined,
-        body.specializationId
-          ? { specializationId: body.specializationId }
-          : undefined,
-      ],
-    },
+    where: { specializationId: body.specializationId },
     include: [
       {
         model: Animal,
@@ -258,6 +251,8 @@ module.exports.getRecommendedMedics = async (
       });
     }
   });
+
+  console.log(freeMedics.map((m) => m.dataValues));
 
   return getRecommendedMedicsDTO(freeMedics);
 };
