@@ -7,6 +7,7 @@ const UserController = require("./controllers/UserController");
 const AnimalController = require("./controllers/AnimalController");
 const VeterinarianSpecializationController = require("./controllers/VeterinarianSpecializationController");
 const VeterinarianController = require("./controllers/VeterinarianController");
+const AppointmentController = require("./controllers/AppointmentController");
 import User from "./models/User";
 import Role from "./models/Role";
 import Appointment from "./models/Appointment";
@@ -32,7 +33,7 @@ sequelize.addModels([
   VeterinarianSpecialization,
   WorksWith,
 ]);
-//sequelize.sync({ force: true });
+// sequelize.sync({ force: true });
 sequelize.sync();
 
 app.use(express.json());
@@ -46,6 +47,7 @@ app.use(
   VeterinarianSpecializationController
 );
 app.use("/api/medic", VeterinarianController);
+app.use("/api/appointment", AppointmentController);
 
 // start the Express server
 app.listen(port, () => {

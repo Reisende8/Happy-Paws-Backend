@@ -9,6 +9,7 @@ const {
   deleteMedic,
   getMedics,
   getMedicDetails,
+  getRecommendedMedics,
 } = require("../services/VeterinariansService");
 
 router.post(
@@ -104,5 +105,22 @@ router.get("/medics/:medicId", AUTHMiddleware(), async (req, res) => {
     });
   }
 });
+
+router.post(
+  "/get-recommended-medics",
+  AUTHMiddleware("client"),
+  async (req, res) => {
+    try {
+      const medics = await getRecommendedMedics(req.body);
+      res.status(200).json(medics);
+    } catch (err) {
+      console.error(err);
+      res.status(err.status ?? 400).json({
+        error: err.error ?? "Error!",
+        message: err.message ?? "Something went wrong!",
+      });
+    }
+  }
+);
 
 module.exports = router;

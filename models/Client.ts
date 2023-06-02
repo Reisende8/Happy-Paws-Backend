@@ -33,12 +33,9 @@ class Client extends Model<Client> {
   @BelongsTo(() => User, { foreignKey: "userId", targetKey: "id" })
   user!: User;
 
-  @BelongsToMany(
-    () => Veterinarian,
-    () => Appointment,
-    "clientId",
-    "veterinarianId"
-  )
+  @BelongsToMany(() => Veterinarian, {
+    through: { model: () => Appointment, unique: false },
+  })
   veterinarians!: Veterinarian[];
 }
 

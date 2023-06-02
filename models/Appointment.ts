@@ -24,11 +24,11 @@ class Appointment extends Model<Appointment> {
   animalId!: string;
 
   @ForeignKey(() => Client)
-  @Column(DataType.UUID)
+  @Column({ type: DataType.UUID, unique: false })
   clientId!: string;
 
   @ForeignKey(() => Veterinarian)
-  @Column(DataType.UUID)
+  @Column({ type: DataType.UUID, unique: false })
   veterinarianId!: string;
 
   @Column

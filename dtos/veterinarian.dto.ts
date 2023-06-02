@@ -40,3 +40,21 @@ export const getMedicDetailsDTO = (medic) => ({
     name: animal.name,
   })),
 });
+
+export const getRecommendedMedicsDTO = (medics) => {
+  return medics.map((medic) => {
+    return {
+      medicId: medic.id,
+      clinicId: medic.clinicId,
+      firstName: medic.firstName,
+      lastName: medic.lastName,
+      specializationId: medic.specializationId,
+      estimatedPrice: medic.estimatedPrice,
+      animals: medic.animals.map((animal) => ({
+        id: animal.id,
+        name: animal.name,
+      })),
+      takenSlots: medic.takenSlots,
+    };
+  });
+};

@@ -49,11 +49,13 @@ class Veterinarian extends Model<Veterinarian> {
   @BelongsTo(() => Clinic, { foreignKey: "clinicId", targetKey: "id" })
   clinic!: Clinic;
 
-  @BelongsToMany(() => Client, () => Appointment, "veterinarianId", "clientId")
-  clients!: Client[];
-
   @BelongsToMany(() => Animal, () => WorksWith, "veterinarianId", "animalId")
   animals!: Animal[];
+
+  @BelongsToMany(() => Client, {
+    through: { model: () => Appointment, unique: false },
+  })
+  clients!: Client[];
 }
 
 export default Veterinarian;

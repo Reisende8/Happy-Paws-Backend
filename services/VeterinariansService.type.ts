@@ -18,3 +18,8 @@ export interface getMedicsBodyInterface {
   specializationId: string;
   animalId: string;
 }
+
+export interface GetRecommendedMedicsBodyInterface
+  extends getMedicsBodyInterface {
+  date: string;
+}

@@ -2,6 +2,7 @@ import Clinic from "../models/Clinic";
 import Veterinarian from "../models/Veterinarian";
 const { Op } = require("sequelize");
 import {
+  GetRecommendedMedicsBodyInterface,
   createMedicInterface,
   getMedicsBodyInterface,
   updateMedicInterface,
@@ -10,10 +11,12 @@ import {
   medicDTO,
   getMedicsDTO,
   getMedicDetailsDTO,
+  getRecommendedMedicsDTO,
 } from "../dtos/veterinarian.dto";
 import WorksWith from "../models/WorksWith";
 import { isWrongAnimalId } from "../utils/functions";
 import Animal from "../models/Animal";
+import Appointment from "../models/Appointment";
 
 module.exports.createMedic = async (
   userId: string,
@@ -203,4 +206,58 @@ module.exports.getMedicDetails = async (medicId: string) => {
     };
   }
   return getMedicDetailsDTO(medic);
+};
+
+module.exports.getRecommendedMedics = async (
+  body: GetRecommendedMedicsBodyInterface
+) => {
+  const appointmentDate = new Date(body.date);
+  const specializedMedics = await Veterinarian.findAll({
+    where: {
+      [Op.and]: [
+        body.clinicId ? { clinicId: body.clinicId } : undefined,
+        body.specializationId
+          ? { specializationId: body.specializationId }
+          : undefined,
+      ],
+    },
+    include: [
+      {
+        model: Animal,
+      },
+    ],
+  });
+
+  const eligableMedics = specializedMedics.filter((m) =>
+    m.dataValues.animals
+      .map((a) => a.dataValues.id)
+      .includes(body.animalId.toString())
+  );
+
+  const eligableMedicsIds = eligableMedics.map((m) => m.dataValues.id);
+
+  const allMedicAppointments = await Appointment.findAll({
+    where: {
+      [Op.and]: [
+        { veterinarianId: { [Op.in]: eligableMedicsIds } },
+        {
+          date: { [Op.eq]: appointmentDate },
+        },
+      ],
+    },
+  });
+  const freeMedics: any = [];
+  eligableMedics.forEach((m) => {
+    const takenSlots = allMedicAppointments
+      .filter((a) => a.veterinarianId === m.id)
+      .map((a) => a.dataValues.slot);
+    if (takenSlots.length < 4) {
+      freeMedics.push({
+        ...m,
+        takenSlots,
+      });
+    }
+  });
+
+  return getRecommendedMedicsDTO(freeMedics);
 };
