@@ -1,31 +1,35 @@
 import { Router } from "express";
-import Appointment from "../models/Appointment";
+import AUTHMiddleware from "../middlewares/AUTHMiddleware";
 const express = require("express");
 const router: Router = express.Router();
+const { createAppointment } = require("../services/AppointmentsService");
+const requiredFields = require("../middlewares/requiredFieldsMiddleware");
 
-router.post("/create-dummy-appointment", async (req, res) => {
-  try {
-    //////////////////////////move to appointments service
-    const appointment = await Appointment.create({
-      animalId: "0",
-      clientId: "944c1494-0bf3-4340-a393-149560c1194e",
-      veterinarianId: "0ecc16e4-7fcc-40e3-a869-e14c102dbb8c",
-      date: new Date("2023-06-03"),
-      slot: 2,
-      description: "Some description",
-      status: "pending",
-      animalAge: 4,
-    });
+router.post(
+  "/create-appointment",
+  AUTHMiddleware("client"),
+  requiredFields([
+    "animalId",
+    "veterinarianId",
+    "date",
+    "slot",
+    "description",
+    "animalAge",
+  ]),
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const appointment = await createAppointment(userId, req.body);
 
-    ///////////////////////
-    res.status(200).json(appointment);
-  } catch (err) {
-    console.error(err);
-    res.status(err.status ?? 400).json({
-      error: err.error ?? "Error!",
-      message: err.message ?? "Something went wrong!",
-    });
+      res.status(200).json(appointment);
+    } catch (err) {
+      console.error(err);
+      res.status(err.status ?? 400).json({
+        error: err.error ?? "Error!",
+        message: err.message ?? "Something went wrong!",
+      });
+    }
   }
-});
+);
 
 module.exports = router;
