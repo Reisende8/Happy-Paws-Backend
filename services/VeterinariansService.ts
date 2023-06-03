@@ -263,7 +263,5 @@ module.exports.getRecommendedMedics = async (
     }
   }
 
-  console.log(freeMedics.map((m) => m.dataValues));
-
   return getRecommendedMedicsDTO(freeMedics);
 };
