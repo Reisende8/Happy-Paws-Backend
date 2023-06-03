@@ -46,6 +46,7 @@ export const getRecommendedMedicsDTO = (medics) => {
     const medic = m.dataValues;
     const takenSlots = m.takenSlots;
     const clinic = m.clinic;
+
     return {
       medicId: medic.id,
       clinicId: medic.clinicId,
@@ -60,7 +61,7 @@ export const getRecommendedMedicsDTO = (medics) => {
       takenSlots,
       clinic: {
         id: clinic.id,
-        userId: clinic.userId,
+        phoneNumber: m.phoneNumber,
         address: clinic.address,
         name: clinic.name,
       },

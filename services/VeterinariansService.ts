@@ -17,6 +17,7 @@ import WorksWith from "../models/WorksWith";
 import { isWrongAnimalId } from "../utils/functions";
 import Animal from "../models/Animal";
 import Appointment from "../models/Appointment";
+import User from "../models/User";
 
 module.exports.createMedic = async (
   userId: string,
@@ -249,10 +250,15 @@ module.exports.getRecommendedMedics = async (
         where: { id: m.clinicId },
       });
 
+      const user = await User.findOne({
+        where: { id: clinicOfMedic.userId },
+      });
+
       freeMedics.push({
         ...m,
         takenSlots,
         clinic: clinicOfMedic,
+        phoneNumber: user.phoneNumber,
       });
     }
   }
