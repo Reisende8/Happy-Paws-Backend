@@ -240,17 +240,22 @@ module.exports.getRecommendedMedics = async (
     },
   });
   const freeMedics: any = [];
-  eligableMedics.forEach((m) => {
+  for (const m of eligableMedics) {
     const takenSlots = allMedicAppointments
       .filter((a) => a.veterinarianId === m.id)
       .map((a) => a.dataValues.slot);
     if (takenSlots.length < 4) {
+      const clinicOfMedic = await Clinic.findOne({
+        where: { id: m.clinicId },
+      });
+
       freeMedics.push({
         ...m,
         takenSlots,
+        clinic: clinicOfMedic,
       });
     }
-  });
+  }
 
   console.log(freeMedics.map((m) => m.dataValues));
 

@@ -45,6 +45,7 @@ export const getRecommendedMedicsDTO = (medics) => {
   return medics.map((m) => {
     const medic = m.dataValues;
     const takenSlots = m.takenSlots;
+    const clinic = m.clinic;
     return {
       medicId: medic.id,
       clinicId: medic.clinicId,
@@ -57,6 +58,12 @@ export const getRecommendedMedicsDTO = (medics) => {
         name: animal.name,
       })),
       takenSlots,
+      clinic: {
+        id: clinic.id,
+        userId: clinic.userId,
+        address: clinic.address,
+        name: clinic.name,
+      },
     };
   });
 };
