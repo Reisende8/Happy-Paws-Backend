@@ -21,6 +21,7 @@ export const createAppointmentDTO = (
     estimatedPrice: medic.estimatedPrice,
   },
   clinic: {
+    id: clinic.id,
     name: clinic.name,
     address: clinic.address,
     phoneNumber: user.phoneNumber,
