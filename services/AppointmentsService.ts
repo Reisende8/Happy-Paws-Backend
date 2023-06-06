@@ -73,6 +73,7 @@ module.exports.getAppointments = async (clientId: string) => {
         model: Animal,
       },
     ],
+    order: [["date", "ASC"]],
   });
   const appointmentsInfo: any = [];
   for (const a of apointments) {
