@@ -73,7 +73,7 @@ module.exports.getAppointments = async (clientId: string) => {
         model: Animal,
       },
     ],
-    order: [["date", "ASC"]],
+    order: [["date", "DESC"]],
   });
   const appointmentsInfo: any = [];
   for (const a of apointments) {
@@ -90,7 +90,6 @@ module.exports.getAppointments = async (clientId: string) => {
 
     appointmentsInfo.push({
       ...a,
-
       medicId: medic.id,
       clinicId: medic.clinicId,
       firstName: medic.firstName,
@@ -119,10 +118,10 @@ module.exports.cancelAppointment = async (appointmentId: string) => {
       message: `Invalid appointment to cancel!`,
     };
   }
-  const updatedMedic = await appointment.update({
+  const updatedStatusAppointment = await appointment.update({
     ...appointment,
-    status: "Canceled",
+    status: "canceled",
   });
 
-  return updatedMedic;
+  return { success: true };
 };
