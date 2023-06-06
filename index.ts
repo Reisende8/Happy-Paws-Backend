@@ -8,6 +8,7 @@ const AnimalController = require("./controllers/AnimalController");
 const VeterinarianSpecializationController = require("./controllers/VeterinarianSpecializationController");
 const VeterinarianController = require("./controllers/VeterinarianController");
 const AppointmentController = require("./controllers/AppointmentController");
+const { fulfillAppointments } = require("./jobs/appointments");
 import User from "./models/User";
 import Role from "./models/Role";
 import Appointment from "./models/Appointment";
@@ -48,6 +49,11 @@ app.use(
 );
 app.use("/api/medic", VeterinarianController);
 app.use("/api/appointment", AppointmentController);
+
+fulfillAppointments();
+setInterval(() => {
+  fulfillAppointments();
+}, 86400000);
 
 // start the Express server
 app.listen(port, () => {
