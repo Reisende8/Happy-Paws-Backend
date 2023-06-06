@@ -1,4 +1,7 @@
-import { createAppointmentDTO } from "../dtos/appointment.dto";
+import {
+  createAppointmentDTO,
+  getAppointmentsDTO,
+} from "../dtos/appointment.dto";
 import Animal from "../models/Animal";
 import Appointment from "../models/Appointment";
 import Client from "../models/Client";
@@ -60,4 +63,65 @@ module.exports.createAppointment = async (
     clinic.dataValues,
     user.dataValues
   );
+};
+
+module.exports.getAppointments = async (clientId: string) => {
+  const apointments = await Appointment.findAll({
+    where: { clientId: clientId },
+    include: [
+      {
+        model: Animal,
+      },
+    ],
+  });
+  const appointmentsInfo: any = [];
+  for (const a of apointments) {
+    const medic = await Veterinarian.findOne({
+      where: { id: a.veterinarianId },
+    });
+    const clinic = await Clinic.findOne({
+      where: { id: medic.clinicId },
+    });
+
+    const user = await User.findOne({
+      where: { id: clinic.userId },
+    });
+
+    appointmentsInfo.push({
+      ...a,
+
+      medicId: medic.id,
+      clinicId: medic.clinicId,
+      firstName: medic.firstName,
+      lastName: medic.lastName,
+      specializationId: medic.specializationId,
+      estimatedPrice: medic.estimatedPrice,
+
+      phoneNumber: user.phoneNumber,
+      address: clinic.address,
+      name: clinic.name,
+    });
+  }
+
+  return getAppointmentsDTO(appointmentsInfo);
+};
+
+module.exports.cancelAppointment = async (appointmentId: string) => {
+  const appointment = await Appointment.findOne({
+    where: { id: appointmentId },
+  });
+
+  if (!appointment) {
+    throw {
+      status: 400,
+      error: `Error!`,
+      message: `Invalid appointment to cancel!`,
+    };
+  }
+  const updatedMedic = await appointment.update({
+    ...appointment,
+    status: "Canceled",
+  });
+
+  return updatedMedic;
 };

@@ -27,3 +27,34 @@ export const createAppointmentDTO = (
     phoneNumber: user.phoneNumber,
   },
 });
+
+export const getAppointmentsDTO = (appointmentsInfo) => {
+  return appointmentsInfo.map((info) => {
+    return {
+      id: info.dataValues.id,
+      clientId: info.dataValues.clientId,
+      date: info.dataValues.date,
+      slot: info.dataValues.slot,
+      description: info.dataValues.description,
+      status: info.dataValues.status,
+      animalAge: info.dataValues.animalAge,
+      animal: {
+        id: info.dataValues.animal.id,
+        name: info.dataValues.animal.name,
+      },
+      medic: {
+        id: info.medicId,
+        firstName: info.firstName,
+        lastName: info.lastName,
+        specializationId: info.specializationId,
+        estimatedPrice: info.estimatedPrice,
+      },
+      clinic: {
+        id: info.clinicId,
+        name: info.name,
+        address: info.address,
+        phoneNumber: info.phoneNumber,
+      },
+    };
+  });
+};
