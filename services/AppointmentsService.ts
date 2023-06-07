@@ -1,5 +1,6 @@
 import {
   createAppointmentDTO,
+  getAppointmentsByMedicIdDTO,
   getAppointmentsDTO,
 } from "../dtos/appointment.dto";
 import Animal from "../models/Animal";
@@ -124,4 +125,97 @@ module.exports.cancelAppointment = async (appointmentId: string) => {
   });
 
   return { success: true };
+};
+
+module.exports.getAppointmentsByMedicId = async (medicId: string) => {
+  const today = new Date();
+  today.setDate(today.getDate() - 1);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 2);
+
+  const appointmentsFromYesterday = await Appointment.findAll({
+    where: {
+      veterinarianId: medicId,
+      date: {
+        [Op.and]: [{ [Op.lt]: today }, { [Op.gt]: yesterday }],
+      },
+    },
+    include: [
+      {
+        model: Animal,
+      },
+    ],
+  });
+  const yesterdayAppointments = [];
+  for (const appointment of appointmentsFromYesterday) {
+    const client = await Client.findByPk(appointment.clientId, {
+      include: {
+        model: User,
+        attributes: ["phoneNumber"],
+      },
+    });
+
+    yesterdayAppointments.push({
+      id: appointment.id,
+      animal: appointment.animal,
+      animalAge: appointment.animalAge,
+      client: {
+        id: client.id,
+        firstName: client.firstName,
+        lastName: client.lastName,
+        phoneNumber: client.user.phoneNumber,
+      },
+      date: appointment.date,
+      slot: appointment.slot,
+      veterinarianId: appointment.veterinarianId,
+      description: appointment.description,
+      status: appointment.status,
+    });
+  }
+
+  const prevAppointments = await Appointment.findAll({
+    where: {
+      veterinarianId: medicId,
+      date: {
+        [Op.and]: [{ [Op.lte]: yesterday }],
+      },
+    },
+    include: [
+      {
+        model: Animal,
+      },
+    ],
+  });
+
+  const previousAppointments = [];
+  for (const appointment of prevAppointments) {
+    const client = await Client.findByPk(appointment.clientId, {
+      include: {
+        model: User,
+        attributes: ["phoneNumber"],
+      },
+    });
+
+    previousAppointments.push({
+      id: appointment.id,
+      animal: appointment.animal,
+      animalAge: appointment.animalAge,
+      client: {
+        id: client.id,
+        firstName: client.firstName,
+        lastName: client.lastName,
+        phoneNumber: client.user.phoneNumber,
+      },
+      date: appointment.date,
+      slot: appointment.slot,
+      veterinarianId: appointment.veterinarianId,
+      description: appointment.description,
+      status: appointment.status,
+    });
+  }
+
+  return getAppointmentsByMedicIdDTO(
+    yesterdayAppointments,
+    previousAppointments
+  );
 };

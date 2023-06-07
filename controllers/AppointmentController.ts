@@ -4,6 +4,7 @@ const express = require("express");
 const router: Router = express.Router();
 const { createAppointment } = require("../services/AppointmentsService");
 const { getAppointments } = require("../services/AppointmentsService");
+const { getAppointmentsByMedicId } = require("../services/AppointmentsService");
 const requiredFields = require("../middlewares/requiredFieldsMiddleware");
 const { cancelAppointment } = require("../services/AppointmentsService");
 router.post(
@@ -60,6 +61,24 @@ router.get(
       const appointmentId = req.params.appointmentId;
       const appointmentToCancel = await cancelAppointment(appointmentId);
       res.status(200).json(appointmentToCancel);
+    } catch (err) {
+      console.error(err);
+      res.status(err.status ?? 400).json({
+        error: err.error ?? "Error!",
+        message: err.message ?? "Something went wrong!",
+      });
+    }
+  }
+);
+
+router.get(
+  "/medics-previous-appointments/:medicId",
+  AUTHMiddleware("clinic"),
+  async (req, res) => {
+    try {
+      const medicId = req.params.medicId;
+      const prevAppointments = await getAppointmentsByMedicId(medicId);
+      res.status(200).json(prevAppointments);
     } catch (err) {
       console.error(err);
       res.status(err.status ?? 400).json({

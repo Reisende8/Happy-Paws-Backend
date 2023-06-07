@@ -58,3 +58,23 @@ export const getAppointmentsDTO = (appointmentsInfo) => {
     };
   });
 };
+
+export const getAppointmentsByMedicIdDTO = (
+  appointmentsFromYesterday,
+  prevAppointments
+) => {
+  return {
+    yesterdayAppointments: appointmentsFromYesterday.map((ap) => {
+      return {
+        ...ap,
+        animal: { id: ap.animal.id, name: ap.animal.name },
+      };
+    }),
+    previousAppointments: prevAppointments.map((prev) => {
+      return {
+        ...prev,
+        animal: { id: prev.animal.id, name: prev.animal.name },
+      };
+    }),
+  };
+};
