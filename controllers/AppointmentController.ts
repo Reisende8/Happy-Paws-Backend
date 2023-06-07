@@ -7,6 +7,8 @@ const { getAppointments } = require("../services/AppointmentsService");
 const { getAppointmentsByMedicId } = require("../services/AppointmentsService");
 const requiredFields = require("../middlewares/requiredFieldsMiddleware");
 const { cancelAppointment } = require("../services/AppointmentsService");
+const { fulfillAppointment } = require("../services/AppointmentsService");
+const { unfulfillAppointment } = require("../services/AppointmentsService");
 router.post(
   "/create-appointment",
   AUTHMiddleware("client"),
@@ -72,13 +74,53 @@ router.get(
 );
 
 router.get(
-  "/medics-previous-appointments/:medicId",
+  "/medics-appointments/:medicId",
   AUTHMiddleware("clinic"),
   async (req, res) => {
     try {
       const medicId = req.params.medicId;
       const prevAppointments = await getAppointmentsByMedicId(medicId);
       res.status(200).json(prevAppointments);
+    } catch (err) {
+      console.error(err);
+      res.status(err.status ?? 400).json({
+        error: err.error ?? "Error!",
+        message: err.message ?? "Something went wrong!",
+      });
+    }
+  }
+);
+
+router.get(
+  "/fulfill-appointment/:appointmentId",
+  AUTHMiddleware("clinic"),
+  async (req, res) => {
+    try {
+      const appointmentId = req.params.appointmentId;
+      const appointmentToFullfillOrUnfulfill = await fulfillAppointment(
+        appointmentId
+      );
+      res.status(200).json(appointmentToFullfillOrUnfulfill);
+    } catch (err) {
+      console.error(err);
+      res.status(err.status ?? 400).json({
+        error: err.error ?? "Error!",
+        message: err.message ?? "Something went wrong!",
+      });
+    }
+  }
+);
+
+router.get(
+  "/unfulfill-appointment/:appointmentId",
+  AUTHMiddleware("clinic"),
+  async (req, res) => {
+    try {
+      const appointmentId = req.params.appointmentId;
+      const appointmentToUnfullfillOrUnfulfill = await unfulfillAppointment(
+        appointmentId
+      );
+      res.status(200).json(appointmentToUnfullfillOrUnfulfill);
     } catch (err) {
       console.error(err);
       res.status(err.status ?? 400).json({

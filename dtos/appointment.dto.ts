@@ -60,10 +60,17 @@ export const getAppointmentsDTO = (appointmentsInfo) => {
 };
 
 export const getAppointmentsByMedicIdDTO = (
+  todayAppointments,
   appointmentsFromYesterday,
   prevAppointments
 ) => {
   return {
+    todayAppointments: todayAppointments.map((ap) => {
+      return {
+        ...ap,
+        animal: { id: ap.animal.id, name: ap.animal.name },
+      };
+    }),
     yesterdayAppointments: appointmentsFromYesterday.map((ap) => {
       return {
         ...ap,

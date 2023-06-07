@@ -133,6 +133,48 @@ module.exports.getAppointmentsByMedicId = async (medicId: string) => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 2);
 
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const appointmentsFromToday = await Appointment.findAll({
+    where: {
+      veterinarianId: medicId,
+      date: {
+        [Op.and]: [{ [Op.lt]: tomorrow }, { [Op.gt]: today }],
+      },
+    },
+    include: [
+      {
+        model: Animal,
+      },
+    ],
+  });
+  const todayAppointments = [];
+  for (const appointment of appointmentsFromToday) {
+    const client = await Client.findByPk(appointment.clientId, {
+      include: {
+        model: User,
+        attributes: ["phoneNumber"],
+      },
+    });
+
+    todayAppointments.push({
+      id: appointment.id,
+      animal: appointment.animal,
+      animalAge: appointment.animalAge,
+      client: {
+        id: client.id,
+        firstName: client.firstName,
+        lastName: client.lastName,
+        phoneNumber: client.user.phoneNumber,
+      },
+      date: appointment.date,
+      slot: appointment.slot,
+      veterinarianId: appointment.veterinarianId,
+      description: appointment.description,
+      status: appointment.status,
+    });
+  }
+
   const appointmentsFromYesterday = await Appointment.findAll({
     where: {
       veterinarianId: medicId,
@@ -215,7 +257,54 @@ module.exports.getAppointmentsByMedicId = async (medicId: string) => {
   }
 
   return getAppointmentsByMedicIdDTO(
+    todayAppointments,
     yesterdayAppointments,
     previousAppointments
   );
+};
+
+module.exports.fulfillAppointment = async (appointmentId: string) => {
+  const appointment = await Appointment.findOne({
+    where: { id: appointmentId },
+  });
+
+  if (!appointment) {
+    throw {
+      status: 400,
+      error: `Error!`,
+      message: `Invalid appointment to fulfill or unfulfill!`,
+    };
+  }
+  const updatedStatusAppointment = await appointment.update({
+    ...appointment,
+    status:
+      appointment.status === "pending" || appointment.status === "unfulfilled"
+        ? "fulfilled"
+        : appointment.status,
+  });
+
+  return { success: true };
+};
+
+module.exports.unfulfillAppointment = async (appointmentId: string) => {
+  const appointment = await Appointment.findOne({
+    where: { id: appointmentId },
+  });
+
+  if (!appointment) {
+    throw {
+      status: 400,
+      error: `Error!`,
+      message: `Invalid appointment to fulfill or unfulfill!`,
+    };
+  }
+  const updatedStatusAppointment = await appointment.update({
+    ...appointment,
+    status:
+      appointment.status === "pending" || appointment.status === "fulfilled"
+        ? "unfulfilled"
+        : appointment.status,
+  });
+
+  return { success: true };
 };
