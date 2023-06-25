@@ -134,6 +134,10 @@ module.exports.getAppointmentsByMedicId = async (medicId: string) => {
   yesterday.setDate(yesterday.getDate() - 2);
 
   const tomorrow = new Date();
+  tomorrow.setHours(0);
+  tomorrow.setSeconds(0);
+  tomorrow.setMilliseconds(0);
+  tomorrow.setMinutes(0);
   tomorrow.setDate(tomorrow.getDate() + 1);
   const appointmentsFromToday = await Appointment.findAll({
     where: {
