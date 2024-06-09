@@ -2,53 +2,35 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "my-backend-app"
-        DOCKER_REGISTRY = "my-docker-registry"
-        KUBE_CONFIG = credentials('kubeconfig')
+        GIT_REPO_URL = 'https://github.com/Reisende8/Happy-Paws-Backend.git'
+        GIT_BRANCH = 'main' // Specify the branch you want to build
+        GIT_CREDENTIALS_ID = 'github' // Use the credentials ID 'github'
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/Reisende8/Happy-Paws-Backend.git'
+                git branch: "${GIT_BRANCH}", credentialsId: "${GIT_CREDENTIALS_ID}", url: "${GIT_REPO_URL}"
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh '''
+                   export NVM_DIR="$HOME/.nvm"
+                   [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
+                   npm install
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'npm test'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${env.BUILD_ID}")
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'docker-credentials') {
-                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push()
-                    }
-                }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    ansiblePlaybook playbook: 'deploy-backend.yml', inventory: 'inventory.ini', extras: '-e image_tag=${env.BUILD_ID}'
-                }
+                sh '''
+                   export NVM_DIR="$HOME/.nvm"
+                   [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
+                   npm test
+                '''
             }
         }
     }
