@@ -49,4 +49,33 @@ pipeline {
         stage('Tag Docker Image for Deployment') {
             steps {
                 script {
-                    sh "docker tag ${DOCKER_IMAGE}:latest ${DEPLOY_IMAGE
+                    sh "docker tag ${DOCKER_IMAGE}:latest ${DEPLOY_IMAGE}:latest"
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('', "${DOCKER_CREDENTIALS_ID}") {
+                        docker.image("${DEPLOY_IMAGE}:latest").push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
+                    ansiblePlaybook playbook: 'ansible/deploy.yml', inventory: 'ansible/inventory'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
