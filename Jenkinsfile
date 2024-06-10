@@ -78,6 +78,12 @@ pipeline {
             }
         }
 
+        stage('Verify Deployment Files') {
+            steps {
+                sh 'ls -l ansible/k8s'
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 script {
