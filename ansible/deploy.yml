@@ -6,6 +6,7 @@
         kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"
         state: present
         definition: "{{ lookup('file', 'k8s/backend-deployment.yaml') }}"
+
     - name: Create Kubernetes service
       kubernetes.core.k8s:
         kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"
