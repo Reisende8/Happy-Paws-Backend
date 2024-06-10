@@ -6,9 +6,8 @@ pipeline {
         GIT_BRANCH = 'main'
         GIT_CREDENTIALS_ID = 'github'
         DOCKER_CREDENTIALS_ID = 'dockerhub'
-        DOCKER_IMAGE = 'reisende8/happy-paws-backend'
-        DEPLOY_IMAGE = 'reisende8/happy-paws-backend-deploy'
         KUBECONFIG_CREDENTIALS_ID = 'kube'
+        DOCKER_IMAGE_NAME = 'reisende8/happy-paws-backend'
     }
 
     stages {
@@ -23,7 +22,7 @@ pipeline {
                 sh '''
                    export NVM_DIR="$HOME/.nvm"
                    [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
-                   npm install --verbose --registry=https://registry.npmjs.org/ --fetch-timeout=60000 --retry=5
+                   npm install
                 '''
             }
         }
@@ -41,15 +40,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:latest")
-                }
-            }
-        }
-
-        stage('Tag Docker Image for Deployment') {
-            steps {
-                script {
-                    sh "docker tag ${DOCKER_IMAGE}:latest ${DEPLOY_IMAGE}:latest"
+                    docker.build("${DOCKER_IMAGE_NAME}:latest")
                 }
             }
         }
@@ -58,7 +49,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('', "${DOCKER_CREDENTIALS_ID}") {
-                        docker.image("${DEPLOY_IMAGE}:latest").push()
+                        docker.image("${DOCKER_IMAGE_NAME}:latest").push()
                     }
                 }
             }
@@ -66,8 +57,13 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
-                    ansiblePlaybook playbook: 'ansible/deploy.yml', inventory: 'ansible/inventory'
+                script {
+                    withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
+                        sh '''
+                           export KUBECONFIG=${KUBECONFIG}
+                           ansible-playbook $(pwd)/ansible/deploy.yml -i $(pwd)/ansible/inventory
+                        '''
+                    }
                 }
             }
         }
