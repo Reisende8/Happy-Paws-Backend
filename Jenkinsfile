@@ -6,7 +6,7 @@ pipeline {
         GIT_BRANCH = 'main'
         GIT_CREDENTIALS_ID = 'github'
         DOCKER_CREDENTIALS_ID = 'dockerhub'
-        KUBECONFIG_CREDENTIALS_ID = 'kubeb'
+        KUBECONFIG_CREDENTIALS_ID = 'kube'
     }
 
     stages {
