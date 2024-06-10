@@ -67,10 +67,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
-                    script {
-                        sh 'kubectl apply -f k8s/backend-deployment.yaml'
-                        sh 'kubectl apply -f k8s/backend-service.yaml'
-                    }
+                    ansiblePlaybook playbook: 'ansible/deploy.yml', inventory: 'ansible/inventory'
                 }
             }
         }
