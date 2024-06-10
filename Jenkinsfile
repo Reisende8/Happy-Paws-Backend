@@ -6,8 +6,7 @@ pipeline {
         GIT_BRANCH = 'main'
         GIT_CREDENTIALS_ID = 'github'
         DOCKER_CREDENTIALS_ID = 'dockerhub'
-        KUBECONFIG_CREDENTIALS_ID = 'kube'
-        DOCKER_IMAGE_NAME = 'reisende8/happy-paws-backend'
+        KUBECONFIG_CREDENTIALS_ID = 'kubeb'
     }
 
     stages {
@@ -40,7 +39,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE_NAME}:latest")
+                    dockerImage = docker.build("reisende8/happy-paws-backend:latest")
                 }
             }
         }
@@ -48,8 +47,8 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('', "${DOCKER_CREDENTIALS_ID}") {
-                        docker.image("${DOCKER_IMAGE_NAME}:latest").push()
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
+                        dockerImage.push()
                     }
                 }
             }
@@ -57,13 +56,11 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
-                        sh '''
-                           export KUBECONFIG=${KUBECONFIG}
-                           ansible-playbook $(pwd)/ansible/deploy.yml -i $(pwd)/ansible/inventory
-                        '''
-                    }
+                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
+                    ansiblePlaybook(
+                        playbook: 'ansible/deploy.yml',
+                        inventory: 'ansible/inventory'
+                    )
                 }
             }
         }
