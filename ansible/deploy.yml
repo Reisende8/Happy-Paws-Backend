@@ -5,12 +5,12 @@
       kubernetes.core.k8s:
         kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"
         state: present
-        definition: "{{ lookup('file', 'k8s/backend-deployment.yaml') }}"
+        definition: "{{ lookup('file', '../k8s/backend-deployment.yaml') }}"  # Adjusted path
 
     - name: Create Kubernetes service
       kubernetes.core.k8s:
         kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"
         state: present
-        definition: "{{ lookup('file', 'k8s/backend-service.yaml') }}"
+        definition: "{{ lookup('file', '../k8s/backend-service.yaml') }}"  # Adjusted path
   environment:
     ansible_python_interpreter: /usr/bin/python3
