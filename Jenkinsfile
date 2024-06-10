@@ -3,9 +3,9 @@ pipeline {
 
     environment {
         GIT_REPO_URL = 'https://github.com/Reisende8/Happy-Paws-Backend.git'
-        GIT_BRANCH = 'main' // Specify the branch you want to build
-        GIT_CREDENTIALS_ID = 'github' // Use the credentials ID 'github'
-        DOCKER_CREDENTIALS_ID = 'dockerhub' // DockerHub credentials ID
+        GIT_BRANCH = 'main'
+        GIT_CREDENTIALS_ID = 'github'
+        DOCKER_CREDENTIALS_ID = 'dockerhub'
         DOCKER_IMAGE = 'reisende8/happy-paws-backend'
         DEPLOY_IMAGE = 'reisende8/happy-paws-backend-deploy'
         KUBECONFIG_CREDENTIALS_ID = 'kube'
