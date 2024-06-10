@@ -2,9 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: happy-paws-backend
-  namespace: default
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: happy-paws-backend
@@ -15,6 +14,6 @@ spec:
     spec:
       containers:
       - name: happy-paws-backend
-        image: reisende8/happy-paws-backend-deploy:latest
+        image: reisende8/happy-paws-backend:latest
         ports:
         - containerPort: 80
