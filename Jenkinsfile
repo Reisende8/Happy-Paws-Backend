@@ -7,7 +7,6 @@ pipeline {
         GIT_CREDENTIALS_ID = 'github'
         DOCKER_CREDENTIALS_ID = 'dockerhub'
         KUBECONFIG_CREDENTIALS_ID = 'kube'
-        KUBECONFIG = credentials('kube')
     }
 
     stages {
@@ -17,30 +16,37 @@ pipeline {
             }
         }
 
+        stage('Verify Workspace') {
+            steps {
+                sh 'pwd'
+                sh 'ls -R $(pwd)'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh '''
-                   export NVM_DIR="$HOME/.nvm"
-                   [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
+                sh """
+                   export NVM_DIR="\$HOME/.nvm"
+                   [ -s "\$NVM_DIR/nvm.sh" ] && \\. "\$NVM_DIR/nvm.sh"
                    npm install
-                '''
+                """
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                   export NVM_DIR="$HOME/.nvm"
-                   [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
+                sh """
+                   export NVM_DIR="\$HOME/.nvm"
+                   [ -s "\$NVM_DIR/nvm.sh" ] && \\. "\$NVM_DIR/nvm.sh"
                    npx jest
-                '''
+                """
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("reisende8/happy-paws-backend:latest")
+                    docker.build("reisende8/happy-paws-backend:${env.BUILD_ID}")
                 }
             }
         }
@@ -49,7 +55,24 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
-                        dockerImage.push()
+                        docker.image("reisende8/happy-paws-backend:${env.BUILD_ID}").push('latest')
+                    }
+                }
+            }
+        }
+
+        stage('Start Minikube') {
+            steps {
+                sh 'minikube start --driver=docker'
+            }
+        }
+
+        stage('Debug Kubernetes Connectivity') {
+            steps {
+                script {
+                    withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
+                        sh 'cat $KUBECONFIG'
+                        sh 'curl -k https://192.168.49.2:8443/version'
                     }
                 }
             }
@@ -57,11 +80,14 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
-                    ansiblePlaybook(
-                        playbook: 'ansible/deploy.yml',
-                        inventory: 'ansible/inventory'
-                    )
+                script {
+                    withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
+                        ansiblePlaybook(
+                            playbook: "${WORKSPACE}/ansible/deploy.yml",
+                            inventory: "${WORKSPACE}/ansible/inventory",
+                            colorized: true
+                        )
+                    }
                 }
             }
         }
