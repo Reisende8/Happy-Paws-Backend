@@ -85,7 +85,8 @@ pipeline {
                         ansiblePlaybook(
                             playbook: "${WORKSPACE}/ansible/deploy.yml",
                             inventory: "${WORKSPACE}/ansible/inventory",
-                            colorized: true
+                            colorized: true,
+                            extras: '-vvvvv'
                         )
                     }
                 }
