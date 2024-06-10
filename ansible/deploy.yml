@@ -1,16 +1,16 @@
----
-- hosts: localhost
+- name: Deploy to Kubernetes
+  hosts: localhost
   tasks:
     - name: Create Kubernetes deployment
       kubernetes.core.k8s:
-        kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"
         state: present
-        definition: "{{ lookup('file', '../k8s/backend-deployment.yaml') }}"  # Adjusted path
+        definition: "{{ lookup('file', 'k8s/backend-deployment.yaml') }}"
+      environment:
+        KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') }}"
 
     - name: Create Kubernetes service
       kubernetes.core.k8s:
-        kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"
         state: present
-        definition: "{{ lookup('file', '../k8s/backend-service.yaml') }}"  # Adjusted path
-  environment:
-    ansible_python_interpreter: /usr/bin/python3
+        definition: "{{ lookup('file', 'k8s/backend-service.yaml') }}"
+      environment:
+        KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') }}"
