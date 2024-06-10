@@ -18,12 +18,22 @@ pipeline {
             }
         }
 
+        stage('Clean npm Cache') {
+            steps {
+                sh '''
+                   export NVM_DIR="$HOME/.nvm"
+                   [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
+                   npm cache clean --force
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh '''
                    export NVM_DIR="$HOME/.nvm"
                    [ -s "$NVM_DIR/nvm.sh" ] && \\. "$NVM_DIR/nvm.sh"
-                   npm install
+                   npm install --verbose --registry=https://registry.npmjs.org/ --fetch-timeout=60000 --retry=5
                 '''
             }
         }
