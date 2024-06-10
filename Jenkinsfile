@@ -7,6 +7,7 @@ pipeline {
         GIT_CREDENTIALS_ID = 'github'
         DOCKER_CREDENTIALS_ID = 'dockerhub'
         KUBECONFIG_CREDENTIALS_ID = 'kube'
+        KUBECONFIG = credentials('kube')
     }
 
     stages {
