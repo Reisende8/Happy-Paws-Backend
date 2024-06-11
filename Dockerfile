@@ -16,5 +16,8 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 80
 
+# Set the environment variable
+ENV PORT 80
+
 # Start the application
 CMD ["npm", "start"]
