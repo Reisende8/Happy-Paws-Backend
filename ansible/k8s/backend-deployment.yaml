@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: happy-paws-backend
   namespace: default
-  labels:
-    app: happy-paws-backend
 spec:
   replicas: 1
   selector:
@@ -20,3 +18,6 @@ spec:
         image: reisende8/happy-paws-backend:latest
         ports:
         - containerPort: 80
+        env:
+        - name: PORT
+          value: "80"
