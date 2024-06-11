@@ -38,7 +38,7 @@ sequelize.addModels([
 sequelize.sync();
 
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors({ origin: "*" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/user", UserController);
