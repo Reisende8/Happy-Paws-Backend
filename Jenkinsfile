@@ -99,7 +99,7 @@ pipeline {
             }
         }
     }
-   stage('Post-Deployment Test') {
+         stage('Post-Deployment Test') {
             steps {
                 script {
                     withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
