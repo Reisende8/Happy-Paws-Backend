@@ -7,7 +7,8 @@ pipeline {
         GIT_CREDENTIALS_ID = 'github'
         DOCKER_CREDENTIALS_ID = 'dockerhub'
         KUBECONFIG_CREDENTIALS_ID = 'kube'
-        
+        SERVICE_NAME = 'happy-paws-backend-service'
+        SERVICE_PORT = '30008'
     }
 
     stages {
