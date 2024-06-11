@@ -4,7 +4,7 @@ metadata:
   name: happy-paws-backend-service
   namespace: default
 spec:
-  type: NodePort  # Add this line
+  type: NodePort
   selector:
     app: happy-paws-backend
   ports:
