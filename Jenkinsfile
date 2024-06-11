@@ -7,6 +7,7 @@ pipeline {
         GIT_CREDENTIALS_ID = 'github'
         DOCKER_CREDENTIALS_ID = 'dockerhub'
         KUBECONFIG_CREDENTIALS_ID = 'kube'
+        
     }
 
     stages {
@@ -98,8 +99,8 @@ pipeline {
                 }
             }
         }
-    }
-         stage('Post-Deployment Test') {
+
+        stage('Post-Deployment Test') {
             steps {
                 script {
                     withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
@@ -114,7 +115,8 @@ pipeline {
                 }
             }
         }
-    
+    }
+
     post {
         always {
             cleanWs()
