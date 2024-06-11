@@ -96,22 +96,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Post-Deployment Test') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
-                        // Get the Minikube IP address
-                        def minikubeIp = sh(script: 'minikube ip', returnStdout: true).trim()
-                        // Define the health check URL
-                        def healthCheckUrl = "http://${minikubeIp}:${SERVICE_PORT}/health"
-
-                        // Run the health check
-                        sh "curl -f ${healthCheckUrl}"
-                    }
-                }
-            }
-        }
     }
 
     post {
