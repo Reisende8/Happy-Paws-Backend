@@ -90,12 +90,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_ID}", variable: 'KUBECONFIG')]) {
-                        ansiblePlaybook(
-                            playbook: "${WORKSPACE}/ansible/deploy.yml",
-                            inventory: "${WORKSPACE}/ansible/inventory",
-                            colorized: true,
-                            extras: '-vvvvv'
-                        )
+                        sh 'kubectl apply -f ansible/k8s/backend-deployment.yaml'
+                        sh 'kubectl apply -f ansible/k8s/backend-service.yaml'
                     }
                 }
             }
